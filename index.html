@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor de Monedas | Dulce María Méndez</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Fondo animado */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .coin {
+            position: absolute;
+            font-size: 40px;
+            opacity: 0.1;
+            animation: float 25s infinite ease-in-out;
+        }
+
+        .coin:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+        .coin:nth-child(2) { top: 20%; right: 15%; animation-delay: 5s; }
+        .coin:nth-child(3) { bottom: 15%; left: 20%; animation-delay: 10s; }
+        .coin:nth-child(4) { bottom: 25%; right: 10%; animation-delay: 15s; }
+        .coin:nth-child(5) { top: 50%; left: 5%; animation-delay: 20s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-30px) rotate(90deg); }
+            50% { transform: translateY(-15px) rotate(180deg); }
+            75% { transform: translateY(-25px) rotate(270deg); }
+        }
+
+        /* Container */
+        .container {
+            max-width: 750px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 35px;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            background: linear-gradient(45deg, #ff8c00, #ff6347);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #b8b8d1;
+            font-size: 16px;
+        }
+
+        /* Card principal */
+        .converter-card {
+            background: rgba(26, 26, 46, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 140, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 140, 0, 0.3);
+            border-top-color: #ff8c00;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #ff8c00;
+            font-size: 16px;
+        }
+
+        /* Error */
+        .error {
+            background: rgba(255, 99, 71, 0.2);
+            border: 2px solid rgba(255, 99, 71, 0.5);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-icon {
+            font-size: 40px;
+            margin-bottom: 10px;
+        }
+
+        .error-text {
+            color: #ff6347;
+            font-size: 15px;
+        }
+
+        /* Sección de conversión */
+        .converter-content {
+            display: none;
+        }
+
+        .converter-content.active {
+            display: block;
+        }
+
+        .conversion-section {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 20px;
+            align-items: start;
+            margin-bottom: 30px;
+        }
+
+        .currency-group {
+            background: rgba(30, 30, 50, 0.6);
+            border: 2px solid rgba(255, 140, 0, 0.3);
+            border-radius: 20px;
+            padding: 25px;
+            transition: all 0.3s;
+        }
+
+        .currency-group:hover {
+            border-color: #ff8c00;
+            box-shadow: 0 5px 20px rgba(255, 140, 0, 0.2);
+        }
+
+        .currency-label {
+            color: #b8b8d1;
+            font-size: 12px;
+            margin-bottom: 12px;
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .amount-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(255, 140, 0, 0.2);
+            border-radius: 12px;
+            background: rgba(20, 20, 40, 0.6);
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .amount-input:focus {
+            outline: none;
+            border-color: #ff8c00;
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
+        }
+
+        .currency-select-wrapper {
+            position: relative;
+        }
+
+        .currency-select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid rgba(255, 140, 0, 0.2);
+            border-radius: 12px;
+            background: rgba(20, 20, 40, 0.6);
+            color: #fff;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            appearance: none;
+        }
+
+        .currency-select:focus {
+            outline: none;
+            border-color: #ff8c00;
+        }
+
+        .currency-select option {
+            background: #1a1a2e;
+            padding: 10px;
+        }
+
+        .select-arrow {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ff8c00;
+            pointer-events: none;
+            font-size: 12px;
+        }
+
+        /* Flag emoji */
+        .currency-flag {
+            font-size: 20px;
+            margin-right: 8px;
+        }
+
+        /* Botón de intercambio */
+        .swap-btn {
+            width: 50px;
+            height: 50px;
+            border: 2px solid rgba(255, 140, 0, 0.5);
+            border-radius: 50%;
+            background: rgba(30, 30, 50, 0.8);
+            color: #ff8c00;
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 50px;
+        }
+
+        .swap-btn:hover {
+            background: linear-gradient(45deg, #ff8c00, #ff6347);
+            border-color: transparent;
+            color: #fff;
+            transform: rotate(180deg) scale(1.1);
+            box-shadow: 0 5px 20px rgba(255, 140, 0, 0.5);
+        }
+
+        /* Info de tasa */
+        .rate-info {
+            background: rgba(255, 140, 0, 0.1);
+            border: 2px solid rgba(255, 140, 0, 0.3);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .rate-label {
+            color: #b8b8d1;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .rate-value {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #ff8c00, #ff6347);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .rate-date {
+            color: #888;
+            font-size: 12px;
+        }
+
+        /* Monedas populares */
+        .popular-section {
+            margin-top: 30px;
+        }
+
+        .section-title {
+            color: #ff8c00;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .popular-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .popular-btn {
+            padding: 12px;
+            border: 2px solid rgba(255, 140, 0, 0.3);
+            border-radius: 12px;
+            background: rgba(30, 30, 50, 0.6);
+            color: #b8b8d1;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .popular-btn:hover {
+            border-color: #ff8c00;
+            color: #ff8c00;
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 140, 0, 0.2);
+        }
+
+        .footer-text {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .footer-link {
+            color: #ff8c00;
+            text-decoration: none;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        .footer-text span {
+            color: #ff8c00;
+            font-weight: bold;
+        }
+
+        /* Animaciones */
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ============================================
+           RESPONSIVE
+           ============================================ */
+
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .header h1 {
+                font-size: 32px;
+            }
+
+            .header p {
+                font-size: 14px;
+            }
+
+            .converter-card {
+                padding: 30px 25px;
+            }
+
+            .conversion-section {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .swap-btn {
+                margin: 0 auto;
+                transform: rotate(90deg);
+            }
+
+            .swap-btn:hover {
+                transform: rotate(270deg) scale(1.1);
+            }
+
+            .amount-input {
+                font-size: 20px;
+            }
+
+            .rate-value {
+                font-size: 24px;
+            }
+
+            .popular-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .coin {
+                display: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .converter-card {
+                padding: 25px 20px;
+                border-radius: 20px;
+            }
+
+            .currency-group {
+                padding: 20px;
+            }
+
+            .amount-input {
+                font-size: 18px;
+                padding: 12px;
+            }
+
+            .currency-select {
+                font-size: 14px;
+            }
+
+            .rate-value {
+                font-size: 22px;
+            }
+
+            .popular-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .swap-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fondo animado -->
+    <div class="background">
+        <div class="coin">💰</div>
+        <div class="coin">💵</div>
+        <div class="coin">💴</div>
+        <div class="coin">💶</div>
+        <div class="coin">💷</div>
+    </div>
+
+    <!-- Container principal -->
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>💱 Conversor de Monedas</h1>
+            <p>Tasas de cambio en tiempo real</p>
+        </div>
+
+        <!-- Card del conversor -->
+        <div class="converter-card">
+            <!-- Loading -->
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p class="loading-text">Cargando tasas de cambio...</p>
+            </div>
+
+            <!-- Error -->
+            <div class="error" id="error">
+                <div class="error-icon">⚠️</div>
+                <p class="error-text">Error al cargar las tasas. Por favor, intenta nuevamente.</p>
+            </div>
+
+            <!-- Contenido del conversor -->
+            <div class="converter-content" id="converterContent">
+                <!-- Sección de conversión -->
+                <div class="conversion-section">
+                    <!-- Moneda origen -->
+                    <div class="currency-group">
+                        <label class="currency-label">De:</label>
+                        <input 
+                            type="number" 
+                            class="amount-input" 
+                            id="fromAmount" 
+                            placeholder="100"
+                            value="100"
+                            step="any"
+                        >
+                        <div class="currency-select-wrapper">
+                            <select class="currency-select" id="fromCurrency">
+                                <!-- Se llena dinámicamente -->
+                            </select>
+                            <span class="select-arrow">▼</span>
+                        </div>
+                    </div>
+
+                    <!-- Botón de intercambio -->
+                    <button class="swap-btn" id="swapBtn" title="Intercambiar monedas">⇄</button>
+
+                    <!-- Moneda destino -->
+                    <div class="currency-group">
+                        <label class="currency-label">A:</label>
+                        <input 
+                            type="number" 
+                            class="amount-input" 
+                            id="toAmount" 
+                            placeholder="0"
+                            readonly
+                        >
+                        <div class="currency-select-wrapper">
+                            <select class="currency-select" id="toCurrency">
+                                <!-- Se llena dinámicamente -->
+                            </select>
+                            <span class="select-arrow">▼</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info de tasa -->
+                <div class="rate-info">
+                    <p class="rate-label">Tasa de cambio actual</p>
+                    <p class="rate-value" id="rateValue">-</p>
+                    <p class="rate-date" id="rateDate">-</p>
+                </div>
+
+                <!-- Monedas populares -->
+                <div class="popular-section">
+                    <h3 class="section-title">🌟 Monedas Populares</h3>
+                    <div class="popular-grid">
+                        <button class="popular-btn" data-from="USD" data-to="EUR">USD → EUR</button>
+                        <button class="popular-btn" data-from="USD" data-to="CLP">USD → CLP</button>
+                        <button class="popular-btn" data-from="EUR" data-to="USD">EUR → USD</button>
+                        <button class="popular-btn" data-from="GBP" data-to="USD">GBP → USD</button>
+                        <button class="popular-btn" data-from="JPY" data-to="USD">JPY → USD</button>
+                        <button class="popular-btn" data-from="CLP" data-to="USD">CLP → USD</button>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="footer">
+                    <p class="footer-text">
+                        Datos de <a href="https://www.exchangerate-api.com/" target="_blank" class="footer-link">ExchangeRate-API</a>
+                    </p>
+                    <p class="footer-text">
+                        Desarrollado por <span>Dulce María Méndez</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // VARIABLES GLOBALES
+        // ==========================================
+        let exchangeRates = {};
+        let lastUpdate = '';
+
+        const loading = document.getElementById('loading');
+        const error = document.getElementById('error');
+        const converterContent = document.getElementById('converterContent');
+        const fromAmount = document.getElementById('fromAmount');
+        const toAmount = document.getElementById('toAmount');
+        const fromCurrency = document.getElementById('fromCurrency');
+        const toCurrency = document.getElementById('toCurrency');
+        const rateValue = document.getElementById('rateValue');
+        const rateDate = document.getElementById('rateDate');
+        const swapBtn = document.getElementById('swapBtn');
+
+        // Lista de monedas con nombres y símbolos
+        const currencies = {
+            USD: { name: 'Dólar Estadounidense', symbol: '$', flag: '🇺🇸' },
+            EUR: { name: 'Euro', symbol: '€', flag: '🇪🇺' },
+            CLP: { name: 'Peso Chileno', symbol: '$', flag: '🇨🇱' },
+            GBP: { name: 'Libra Esterlina', symbol: '£', flag: '🇬🇧' },
+            JPY: { name: 'Yen Japonés', symbol: '¥', flag: '🇯🇵' },
+            CAD: { name: 'Dólar Canadiense', symbol: '$', flag: '🇨🇦' },
+            AUD: { name: 'Dólar Australiano', symbol: '$', flag: '🇦🇺' },
+            CHF: { name: 'Franco Suizo', symbol: 'Fr', flag: '🇨🇭' },
+            CNY: { name: 'Yuan Chino', symbol: '¥', flag: '🇨🇳' },
+            INR: { name: 'Rupia India', symbol: '₹', flag: '🇮🇳' },
+            MXN: { name: 'Peso Mexicano', symbol: '$', flag: '🇲🇽' },
+            BRL: { name: 'Real Brasileño', symbol: 'R$', flag: '🇧🇷' },
+            ARS: { name: 'Peso Argentino', symbol: '$', flag: '🇦🇷' },
+            COP: { name: 'Peso Colombiano', symbol: '$', flag: '🇨🇴' },
+            PEN: { name: 'Sol Peruano', symbol: 'S/', flag: '🇵🇪' },
+            KRW: { name: 'Won Surcoreano', symbol: '₩', flag: '🇰🇷' },
+            RUB: { name: 'Rublo Ruso', symbol: '₽', flag: '🇷🇺' },
+            TRY: { name: 'Lira Turca', symbol: '₺', flag: '🇹🇷' },
+            ZAR: { name: 'Rand Sudafricano', symbol: 'R', flag: '🇿🇦' },
+            NZD: { name: 'Dólar Neozelandés', symbol: '$', flag: '🇳🇿' },
+            SEK: { name: 'Corona Sueca', symbol: 'kr', flag: '🇸🇪' },
+            NOK: { name: 'Corona Noruega', symbol: 'kr', flag: '🇳🇴' },
+            DKK: { name: 'Corona Danesa', symbol: 'kr', flag: '🇩🇰' },
+            SGD: { name: 'Dólar Singapurense', symbol: '$', flag: '🇸🇬' },
+            HKD: { name: 'Dólar Hongkonés', symbol: '$', flag: '🇭🇰' },
+            THB: { name: 'Baht Tailandés', symbol: '฿', flag: '🇹🇭' },
+            MYR: { name: 'Ringgit Malayo', symbol: 'RM', flag: '🇲🇾' },
+            IDR: { name: 'Rupia Indonesia', symbol: 'Rp', flag: '🇮🇩' },
+            PHP: { name: 'Peso Filipino', symbol: '₱', flag: '🇵🇭' },
+            PLN: { name: 'Zloty Polaco', symbol: 'zł', flag: '🇵🇱' },
+            CZK: { name: 'Corona Checa', symbol: 'Kč', flag: '🇨🇿' },
+            HUF: { name: 'Forinto Húngaro', symbol: 'Ft', flag: '🇭🇺' },
+            ILS: { name: 'Nuevo Shekel Israelí', symbol: '₪', flag: '🇮🇱' },
+            AED: { name: 'Dirham de EAU', symbol: 'د.إ', flag: '🇦🇪' },
+            SAR: { name: 'Riyal Saudí', symbol: '﷼', flag: '🇸🇦' },
+            EGP: { name: 'Libra Egipcia', symbol: '£', flag: '🇪🇬' }
+        };
+
+        // ==========================================
+        // INICIALIZAR APP
+        // ==========================================
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchExchangeRates();
+            setupEventListeners();
+        });
+
+        // ==========================================
+        // OBTENER TASAS DE CAMBIO
+        // ==========================================
+        async function fetchExchangeRates() {
+            try {
+                showLoading();
+                
+                // API gratuita de ExchangeRate-API
+                const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
+                const data = await response.json();
+                
+                exchangeRates = data.rates;
+                lastUpdate = data.date;
+                
+                populateCurrencySelects();
+                convert();
+                
+                hideLoading();
+                showConverter();
+                
+            } catch (err) {
+                console.error('Error:', err);
+                showError();
+            }
+        }
+
+        // ==========================================
+        // POBLAR SELECTORES DE MONEDA
+        // ==========================================
+        function populateCurrencySelects() {
+            const options = Object.keys(currencies).map(code => {
+                const curr = currencies[code];
+                return `<option value="${code}">${curr.flag} ${code} - ${curr.name}</option>`;
+            }).join('');
+            
+            fromCurrency.innerHTML = options;
+            toCurrency.innerHTML = options;
+            
+            // Valores por defecto
+            fromCurrency.value = 'USD';
+            toCurrency.value = 'CLP';
+        }
+
+        // ==========================================
+        // CONFIGURAR EVENT LISTENERS
+        // ==========================================
+        function setupEventListeners() {
+            fromAmount.addEventListener('input', convert);
+            fromCurrency.addEventListener('change', convert);
+            toCurrency.addEventListener('change', convert);
+            swapBtn.addEventListener('click', swapCurrencies);
+            
+            // Botones de monedas populares
+            document.querySelectorAll('.popular-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    fromCurrency.value = btn.dataset.from;
+                    toCurrency.value = btn.dataset.to;
+                    convert();
+                });
+            });
+        }
+
+        // ==========================================
+        // CONVERTIR MONEDA
+        // ==========================================
+        function convert() {
+            const amount = parseFloat(fromAmount.value) || 0;
+            const from = fromCurrency.value;
+            const to = toCurrency.value;
+            
+            // Convertir a USD primero, luego a la moneda destino
+            const amountInUSD = from === 'USD' ? amount : amount / exchangeRates[from];
+            const result = to === 'USD' ? amountInUSD : amountInUSD * exchangeRates[to];
+            
+            toAmount.value = result.toFixed(2);
+            
+            // Actualizar info de tasa
+            const rate = exchangeRates[to] / exchangeRates[from];
+            rateValue.textContent = `1 ${from} = ${rate.toFixed(4)} ${to}`;
+            rateDate.textContent = `Actualizado: ${lastUpdate}`;
+        }
+
+        // ==========================================
+        // INTERCAMBIAR MONEDAS
+        // ==========================================
+        function swapCurrencies() {
+            const tempCurrency = fromCurrency.value;
+            fromCurrency.value = toCurrency.value;
+            toCurrency.value = tempCurrency;
+            
+            const tempAmount = fromAmount.value;
+            fromAmount.value = toAmount.value;
+            
+            convert();
+        }
+
+        // ==========================================
+        // FUNCIONES DE UI
+        // ==========================================
+        function showLoading() {
+            loading.style.display = 'block';
+            error.style.display = 'none';
+            converterContent.classList.remove('active');
+        }
+
+        function hideLoading() {
+            loading.style.display = 'none';
+        }
+
+        function showError() {
+            hideLoading();
+            error.style.display = 'block';
+        }
+
+        function showConverter() {
+            converterContent.classList.add('active');
+        }
+
+        // ==========================================
+        // LOG INICIAL
+        // ==========================================
+        console.log('💱 Conversor de Monedas cargado');
+        console.log('💻 Desarrollado por Dulce María Méndez Santiago');
+    </script>
+</body>
+</html>
