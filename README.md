@@ -1,74 +1,110 @@
-# Trivia Preguntas
+# Conversor de Monedas
 
-Trivia Preguntas es una aplicacion web de trivia interactiva desarrollada con HTML, CSS y JavaScript. Permite a los usuarios responder preguntas tipo quiz con opciones multiples y recibir retroalimentacion inmediata. Es un proyecto enfocado en la practica de desarrollo front-end y manipulacion del DOM.
+## Descripción
 
----
+Este proyecto es una **aplicación web simple de conversión de monedas** desarrollada con HTML, CSS y JavaScript. Permite al usuario ingresar un monto y seleccionar una moneda de origen y una de destino para obtener el valor convertido. La aplicación busca ofrecer una experiencia mínima pero funcional de conversión de divisas.  
 
-## Descripcion
-
-Este proyecto consiste en un juego de trivia que presenta una serie de preguntas con varias opciones de respuesta. El usuario selecciona una respuesta y recibe retroalimentacion inmediata indicando si fue correcta o incorrecta.
-
-El objetivo principal del proyecto es demostrar habilidades de desarrollo web utilizando tecnologias nativas del navegador, sin el uso de frameworks o librerias externas.
+Este proyecto forma parte de un ejercicio personal de aprendizaje y práctica, mostrando uso de lógica de programación en el navegador y consumo de datos (si se integra posteriormente a alguna API de tasas de cambio). 
 
 ---
 
-## Funcionalidades
 
-- Visualizacion de preguntas con opciones multiples.
-- Validacion de respuestas seleccionadas por el usuario.
-- Interaccion dinamica sin recarga de pagina.
-- Interfaz simple y clara para una buena experiencia de usuario.
+## Tabla de Contenidos
+
+- [Requisitos](#requisitos)  
+- [Instalación](#instalación)  
+- [Uso](#uso)  
+- [Estructura del Proyecto](#estructura-del-proyecto)  
+- [Tecnologías](#tecnologías)  
+- [Autora](#Autora)
+- [Licencia](#licencia)
+
+---
+
+
+## Requisitos
+
+Para ejecutar este proyecto de forma local solo necesitas:
+
+- Un navegador moderno (Chrome, Firefox, Edge, Safari).  
+- Un entorno local para servir archivos estáticos (opcional pero recomendado).
+
+---
+
+
+## Instalación
+
+1. **Clona el repositorio**
+
+   ```bash
+   git clone https://github.com/dulcemariaom1987/conversor-monedas.git
+
+2. Abre el proyecto
+
+	Navega a la carpeta del proyecto: cd conversor-monedas
+
+3. Ejecuta la aplicación
+
+	Haz doble clic en index.html, o
+
+	Abre index.html desde tu navegador, o
+
+	(Opcional) Sirve el proyecto con un servidor local como Live Server en VSCode.
+
+---
+
+
+## Uso
+
+	1. Ingresa un monto a convertir.
+
+	2. Selecciona la moneda de origen.
+
+	3. Selecciona la moneda de destino.
+
+	4. Presiona el botón de conversión para ver el resultado.
+
+	5. La lógica de conversión está implementada con JavaScript y puede ampliarse para integrar tasas de cambio reales desde una API externa.
 
 ---
 
 ## Estructura del Proyecto
 
-```plaintext
-trivia-preguntas
-├── index.html        # Estructura principal de la aplicacion
-├── styles.css        # Estilos y diseño visual
-└── script.js         # Logica del juego y manejo del DOM
-```
+conversor-monedas/
+├── index.html          
+├── styles.css          
+├── script.js           
+└── README.md           
+
 
 ---
 
-## Tecnologias Utilizadas
 
-| Tecnologia | Descripcion |
-|-----------|-------------|
-| HTML5     | Estructura semantica del contenido |
-| CSS3      | Estilos y presentacion visual |
-| JavaScript| Logica de negocio e interactividad |
+## Tecnologías
 
----
+El proyecto utiliza:
 
-## Como ejecutar el proyecto
+HTML5 para la estructura de la página.
 
-1. Clonar el repositorio:
-   ```bash
-   git clone https://github.com/dulcemariaom1987/trivia-preguntas.git
-   ```
+CSS3 para estilos (si aplica).
 
-2. Acceder a la carpeta del proyecto:
-   ```bash
-   cd trivia-preguntas
-   ```
+JavaScript para la lógica de conversión en el frontend.
 
-3. Abrir el archivo index.html en el navegador web preferido.
-
-No es necesario instalar dependencias ni configurar un servidor local.
 
 ---
 
+## Autora
+
+**Dulce María Méndez**  
+Desarrolladora Web  
+
+GitHub: https://github.com/dulcemariaom1987  
+
+
+---
 
 ## Licencia
 
 Este proyecto es de uso personal y educativo.
 El contenido visual es propiedad de la autora.
 
----
-
-## Autor
-
-Dulce Maria  
-GitHub: https://github.com/dulcemariaom1987
